@@ -24,21 +24,50 @@ execute:
 library(tidyverse)
 ```
 
-## Dataset
+## Data Set
 
 ```{r}
 #| label: load-dataset
 #| message: false
+
+# Load packages
+library(tidyverse)
+library(here)
+
+# Load dataset
+er_data <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-08/care_state.csv")
+
+# Add some more code here to show some important information about the data
+
+
 ```
 
-A brief description of your dataset including its provenance, dimensions, etc. as well as the reason why you chose this dataset.
+*A brief description of your data set including its provenance, dimensions, etc. as well as the reason why you chose this data set.*
 
-Make sure to load the data and use inline code for some of this information.
+This data set comes from the Centers for Medicare and Medicaid Services (CMS) website. There are 1,232 rows and 8 columns of data. I chose this data set because I'm interested in working full-time in a Biotechnology or Healthcare-related role, and this project presents a perfect opportunity for me to visualize and analyze health data.
+
+*Make sure to load the data and use inline code for some of this information.*
 
 ## Questions
 
 The two questions you want to answer.
 
+1.  How much time do psychiatric/mental health patients spend in the emergency room compared to non psychiatric/mental health patients?
+2.  At what point does the wait time lead to patients leaving at or above the national average?
+
 ## Analysis plan
 
-- A plan for answering each of the questions including the variables involved, variables to be created (if any), external data to be merged in (if any).
+- *A plan for answering each of the questions including the variables involved, variables to be created (if any), external data to be merged in (if any).*
+- To answer the question about visit duration for psychiatric/mental health patients compared to non psychiatric/mental health patients, I plan to take the average visit time in minutes for both of these groups and compare the national averages as well as the averages by state. I will then visually display these minute values by state. The variables involved will be the condition, state, measure_id, and score. No external data will be needed to answer this question.
+- To answer the question about wait times and at what point it leads to patients leaving above the national average, I will first calculate the average percentage of patients who come to the emergency room and leave before being seen. To best answer this question, I will need to create a new variable named "combined_score" that takes the average visit duration for psychiatric/mental health patients and the average visit duration of non-psychiatric/mental health patients, adds them together, and divides them by two. The reason I need this combined score is because I have no way of knowing which of these two categories the patients who left without being seen would fall into. I will also need the condition, state, measure_id, and score variables.
+
+## Visuals
+
+```{r}
+# How efficient are emergency room departments at caring for psychiartic/mental healt patients?
+
+# Visual
+er_data |>
+  filter(condition == "Emergency Department", measure_id == "OP_18b")
+
+```
