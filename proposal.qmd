@@ -1,5 +1,5 @@
 ---
-title: "Final Project"
+title: "Emergency Room Care Across the United States"
 subtitle: "INFO 526 Data Analysis and Visualization"
 author: 
   - name: "Michael Burris"
@@ -23,10 +23,10 @@ execute:
 #| message: false
 
 # Load packages
-
 #install.packages("pacman")
-
-pacman::p_load(tidyverse
+pacman::p_load(tidyverse,
+               scales,
+               ggthemes
                )
 ```
 
@@ -35,7 +35,6 @@ pacman::p_load(tidyverse
 ```{r}
 #| label: load-dataset
 #| message: false
-
 # Load dataset
 er_data <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-08/care_state.csv")
 glimpse(er_data)
@@ -60,7 +59,7 @@ This data set comes from the Centers for Medicare and Medicaid Services (CMS) we
 
 *A plan for answering each of the questions including the variables involved, variables to be created (if any), external data to be merged in (if any).*
 
-- To answer the question about visit duration for psychiatric/mental health patients compared to non psychiatric/mental health patients, I plan to take the average visit time in minutes for both of these groups and compare the national averages as well as the averages by state. I will then visually display these minute values by state. The variables involved will be the condition, state, measure_id, and score. No external data will be needed to answer this question.
+- To answer the question about visit duration for psychiatric/mental health patients compared to non psychiatric/mental health patients, I plan to take the average visit time in minutes for both of these groups and compare the national averages as well as the averages by state. I will then visually display these minute values by state. The variables involved will be the condition, state, measure_id, and score. No external data will be needed to answer this question. I did use some external data to identify the state names/capitals/regions.
 - To answer the question about wait times and at what point it leads to patients leaving above the national average, I will first calculate the average percentage of patients who come to the emergency room and leave before being seen. To best answer this question, I will need to create a new variable named "combined_score" that takes the average visit duration for psychiatric/mental health patients and the average visit duration of non-psychiatric/mental health patients, adds them together, and divides them by two. The reason I need this combined score is because I have no way of knowing which of these two categories the patients who left without being seen would fall into. I will also need the condition, state, measure_id, and score variables.
 
 ## Visuals
@@ -126,55 +125,30 @@ ggplot(p_data, aes(x = score, y = factor(state_full, levels = rev(levels(factor(
   theme(
     plot.subtitle = element_text(color = "cornsilk4")
   )
-
-# Sources
-# https://dplyr.tidyverse.org/reference/filter.html
-# https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States
-# https://dplyr.tidyverse.org/reference/top_n.html
-# https://www.rdocumentation.org/packages/dplyr/versions/0.7.8/topics/filter
-# https://dplyr.tidyverse.org/reference/pull.html#ref-examples
-# https://dplyr.tidyverse.org/reference/slice.html#ref-examples
-# https://ggplot2.tidyverse.org/reference/geom_bar.html
-# https://www.rdocumentation.org/packages/data.table/versions/1.18.4/topics/merge
-# https://d2l.arizona.edu/d2l/le/content/1755726/viewContent/20559504/View
-# https://r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html
-# https://www.statology.org/ggplot-order-y-axis-alphabetically/
-# https://medium.com/@MattOldach_65321/reversing-the-order-of-axis-in-a-ggplot2-scatterplot-b1d729b89118
-# https://ggplot2.tidyverse.org/reference/geom_point.html#ref-examples
-# https://en.wikipedia.org/wiki/List_of_regions_of_the_United_States
 ```
 
-::: callout-note
-## Notes
+```{=html}
+<details>
+<summary>Sources</summary>
 
-# <https://dplyr.tidyverse.org/reference/filter.html>
+https://dplyr.tidyverse.org/reference/filter.html
+https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States
+https://dplyr.tidyverse.org/reference/top_n.html
+https://www.rdocumentation.org/packages/dplyr/versions/0.7.8/topics/filter
+https://dplyr.tidyverse.org/reference/pull.html#ref-examples
+https://dplyr.tidyverse.org/reference/slice.html#ref-examples
+https://ggplot2.tidyverse.org/reference/geom_bar.html
+https://www.rdocumentation.org/packages/data.table/versions/1.18.4/topics/merge
+https://d2l.arizona.edu/d2l/le/content/1755726/viewContent/20559504/View
+https://r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html
+https://www.statology.org/ggplot-order-y-axis-alphabetically/
+https://medium.com/@MattOldach_65321/reversing-the-order-of-axis-in-a-ggplot2-scatterplot-b1d729b89118
+https://ggplot2.tidyverse.org/reference/geom_point.html#ref-examples
+https://en.wikipedia.org/wiki/List_of_regions_of_the_United_States
+https://kpuka.ca/resources/quarto_intro.html#sec-html_folding
 
-# <https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States>
-
-# <https://dplyr.tidyverse.org/reference/top_n.html>
-
-# <https://www.rdocumentation.org/packages/dplyr/versions/0.7.8/topics/filter>
-
-# <https://dplyr.tidyverse.org/reference/pull.html#ref-examples>
-
-# <https://dplyr.tidyverse.org/reference/slice.html#ref-examples>
-
-# <https://ggplot2.tidyverse.org/reference/geom_bar.html>
-
-# <https://www.rdocumentation.org/packages/data.table/versions/1.18.4/topics/merge>
-
-# <https://d2l.arizona.edu/d2l/le/content/1755726/viewContent/20559504/View>
-
-# <https://r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html>
-
-# <https://www.statology.org/ggplot-order-y-axis-alphabetically/>
-
-# <https://medium.com/>@MattOldach_65321/reversing-the-order-of-axis-in-a-ggplot2-scatterplot-b1d729b89118
-
-# <https://ggplot2.tidyverse.org/reference/geom_point.html#ref-examples>
-
-# <https://en.wikipedia.org/wiki/List_of_regions_of_the_United_States>
-:::
+</details>
+```
 
 This visual highlights the 5 states that have the shortest and longest median ER visit times for psychiatric/mental health patients. For visual 2, take it a step further and visualize region along with it
 
@@ -195,6 +169,7 @@ p_data <- p_data |>
 # Plot my data
 ggplot(p_data, aes(x = score, y = sort(state_full), fill = region)) + 
   geom_col() + 
+  scale_fill_colorblind() + 
   labs(
     title = "Median ER Visit Times by State & Region",
     subtitle = "Psychiatric/mental health patients",
@@ -204,10 +179,42 @@ ggplot(p_data, aes(x = score, y = sort(state_full), fill = region)) +
   theme(
     plot.subtitle = element_text(color = "cornsilk4")
   )
+```
 
-# Sources
-# https://ggplot2.tidyverse.org/reference/geom_bar.html#ref-examples
-# https://www.datacamp.com/tutorial/sorting-in-r
+```{=html}
+<details>
+<summary>Sources</summary>
+
+https://ggplot2.tidyverse.org/reference/geom_bar.html#ref-examples
+https://www.datacamp.com/tutorial/sorting-in-r
+https://ggplot2.tidyverse.org/reference/geom_bar.html
+
+</details>
+```
+
+This second visual clearly shows that the Midwest region offers some of the fastest ER visits while states in the South and Northeast offer the highest overall ER visits.
+
+```{r}
+#| label: Answer to question 2
+
+# Filter data to only include % of patients who left the ER without being seen in each state
+p_left <- er_data |>
+  filter(condition == "Emergency Department",
+         measure_id == "OP_22", state != "DC", state != "AS", state != "GU", 
+         state != "MP", state != "PR", state != "VI")
+
+# Set my theme
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+
+# Plot the dtaa
+ggplot(p_left, aes(x = score)) + 
+  geom_histogram(bins = 5) + 
+  scale_x_continuous(labels = label_percent(scale = 1)) + 
+  labs(
+    title = "Early ER Departures",
+    x = NULL,
+    y = "# of states"
+  )
 
 
 ```
