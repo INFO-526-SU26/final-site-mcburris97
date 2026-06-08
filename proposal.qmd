@@ -53,7 +53,7 @@ This data set comes from the Centers for Medicare and Medicaid Services (CMS) we
 
 *The two questions you want to answer.*
 
-1.  Which States are the most and least effective time wise at treating psychiatric/mental health patients that are admitted to the emergency room?
+1.  Which states/regions are the most and least effective time wise at treating psychiatric/mental health patients that are admitted to the emergency room?
 2.  At what point does the wait time lead to patients leaving at or above the national average?
 
 ## Analysis plan
@@ -66,7 +66,7 @@ This data set comes from the Centers for Medicare and Medicaid Services (CMS) we
 ## Visuals
 
 ```{r}
-# Which States are the most and least effective time wise at treating psychiatric/mental health patients that are admitted to the emergency room?
+#| label: Answer to question 1
 
 # Filter data to only include emergency room observations, patients that are non psyciatric/mental health patients, and only states not federal districts or territories.
 patients <- er_data |>
@@ -98,12 +98,24 @@ shortest_visits <- patients |>
   slice_min(score, n = 5)
 
 # Join the two new data frames together
-n = longest_visits |>
+p_data = longest_visits |>
   full_join(shortest_visits)
+
+# Create a new column that spells out the state names that meet the above criteria
+p_data =p_data |>
+  mutate(
+    state_full = case_when(
+      state %in% c("DE") ~ "Deleware", state %in% c("KS") ~ "Kansas",
+      state %in% c("MA") ~ "Massachusets", state %in% c("MD") ~ "Maryland",
+      state %in% c("MT") ~ "Montana", state %in% c("ND") ~ "North Dakota",
+      state %in% c("NE") ~ "Nebraska", state %in% c("NY") ~ "New York",
+      state %in% c("RI") ~ "Rhode Island", state %in% c("SD") ~ "South Dakota"
+    )
+  )
 
 
 # Plot my data
-ggplot(n, aes(x = score, y = factor(state, levels = rev(levels(factor(state)))))) + 
+ggplot(p_data, aes(x = score, y = factor(state_full, levels = rev(levels(factor(state_full)))))) + 
   geom_point(size = 4) + 
   labs(
     title = "Highest & Lowest Median ER Visit Times",
@@ -129,8 +141,73 @@ ggplot(n, aes(x = score, y = factor(state, levels = rev(levels(factor(state)))))
 # https://www.statology.org/ggplot-order-y-axis-alphabetically/
 # https://medium.com/@MattOldach_65321/reversing-the-order-of-axis-in-a-ggplot2-scatterplot-b1d729b89118
 # https://ggplot2.tidyverse.org/reference/geom_point.html#ref-examples
+# https://en.wikipedia.org/wiki/List_of_regions_of_the_United_States
+```
+
+::: callout-note
+## Notes
+
+# <https://dplyr.tidyverse.org/reference/filter.html>
+
+# <https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States>
+
+# <https://dplyr.tidyverse.org/reference/top_n.html>
+
+# <https://www.rdocumentation.org/packages/dplyr/versions/0.7.8/topics/filter>
+
+# <https://dplyr.tidyverse.org/reference/pull.html#ref-examples>
+
+# <https://dplyr.tidyverse.org/reference/slice.html#ref-examples>
+
+# <https://ggplot2.tidyverse.org/reference/geom_bar.html>
+
+# <https://www.rdocumentation.org/packages/data.table/versions/1.18.4/topics/merge>
+
+# <https://d2l.arizona.edu/d2l/le/content/1755726/viewContent/20559504/View>
+
+# <https://r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html>
+
+# <https://www.statology.org/ggplot-order-y-axis-alphabetically/>
+
+# <https://medium.com/>@MattOldach_65321/reversing-the-order-of-axis-in-a-ggplot2-scatterplot-b1d729b89118
+
+# <https://ggplot2.tidyverse.org/reference/geom_point.html#ref-examples>
+
+# <https://en.wikipedia.org/wiki/List_of_regions_of_the_United_States>
+:::
+
+This visual highlights the 5 states that have the shortest and longest median ER visit times for psychiatric/mental health patients. For visual 2, take it a step further and visualize region along with it
+
+```{r}
+#| label: Answer to question 1 (cont.)
+
+# Modify my data to include region for more detailed analysis
+p_data <- p_data |>
+  mutate(
+    region = case_when(
+      state %in% c("DE", "MD") ~ "South",
+      state %in% c("KS", "ND", "NE", "SD") ~ "Midwest",
+      state %in% c("MT") ~ "West",
+      TRUE ~ "Northeast"
+    )
+  )
+
+# Plot my data
+ggplot(p_data, aes(x = score, y = sort(state_full), fill = region)) + 
+  geom_col() + 
+  labs(
+    title = "Median ER Visit Times by State & Region",
+    subtitle = "Psychiatric/mental health patients",
+    x = "Minutes",
+    y = NULL
+  ) + 
+  theme(
+    plot.subtitle = element_text(color = "cornsilk4")
+  )
+
+# Sources
+# https://ggplot2.tidyverse.org/reference/geom_bar.html#ref-examples
+# https://www.datacamp.com/tutorial/sorting-in-r
 
 
 ```
-
-This visual highlights the 5 states that have the shortest and longest median ER visit times for psychiatric/mental health patients.
