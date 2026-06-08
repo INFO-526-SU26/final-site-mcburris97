@@ -21,7 +21,13 @@ execute:
 ```{r}
 #| label: load-pkgs
 #| message: false
-library(tidyverse)
+
+# Load packages
+
+#install.packages("pacman")
+
+pacman::p_load(tidyverse
+               )
 ```
 
 ## Data Set
@@ -30,44 +36,101 @@ library(tidyverse)
 #| label: load-dataset
 #| message: false
 
-# Load packages
-library(tidyverse)
-library(here)
-
 # Load dataset
-er_data <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-08/care_state.csv")
-
-# Add some more code here to show some important information about the data
+er_data <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-08/care_state.csv")
+glimpse(er_data)
 
 
 ```
 
 *A brief description of your data set including its provenance, dimensions, etc. as well as the reason why you chose this data set.*
 
-This data set comes from the Centers for Medicare and Medicaid Services (CMS) website. There are 1,232 rows and 8 columns of data. I chose this data set because I'm interested in working full-time in a Biotechnology or Healthcare-related role, and this project presents a perfect opportunity for me to visualize and analyze health data.
+This data set comes from the Centers for Medicare and Medicaid Services (CMS) website. There are 1,232 rows and 8 columns of data. I chose this data set because I'm interested in working full-time in a Biotechnology or Healthcare-related industry, and this project presents a perfect opportunity for me to visualize and analyze health data.
 
 *Make sure to load the data and use inline code for some of this information.*
 
 ## Questions
 
-The two questions you want to answer.
+*The two questions you want to answer.*
 
-1.  How much time do psychiatric/mental health patients spend in the emergency room compared to non psychiatric/mental health patients?
+1.  Which States are the most and least effective time wise at treating psychiatric/mental health patients that are admitted to the emergency room?
 2.  At what point does the wait time lead to patients leaving at or above the national average?
 
 ## Analysis plan
 
-- *A plan for answering each of the questions including the variables involved, variables to be created (if any), external data to be merged in (if any).*
+*A plan for answering each of the questions including the variables involved, variables to be created (if any), external data to be merged in (if any).*
+
 - To answer the question about visit duration for psychiatric/mental health patients compared to non psychiatric/mental health patients, I plan to take the average visit time in minutes for both of these groups and compare the national averages as well as the averages by state. I will then visually display these minute values by state. The variables involved will be the condition, state, measure_id, and score. No external data will be needed to answer this question.
 - To answer the question about wait times and at what point it leads to patients leaving above the national average, I will first calculate the average percentage of patients who come to the emergency room and leave before being seen. To best answer this question, I will need to create a new variable named "combined_score" that takes the average visit duration for psychiatric/mental health patients and the average visit duration of non-psychiatric/mental health patients, adds them together, and divides them by two. The reason I need this combined score is because I have no way of knowing which of these two categories the patients who left without being seen would fall into. I will also need the condition, state, measure_id, and score variables.
 
 ## Visuals
 
 ```{r}
-# How efficient are emergency room departments at caring for psychiartic/mental healt patients?
+# Which States are the most and least effective time wise at treating psychiatric/mental health patients that are admitted to the emergency room?
 
-# Visual
-er_data |>
-  filter(condition == "Emergency Department", measure_id == "OP_18b")
+# Filter data to only include emergency room observations, patients that are non psyciatric/mental health patients, and only states not federal districts or territories.
+patients <- er_data |>
+  filter(condition == "Emergency Department", 
+         measure_id == "OP_18c", state != "DC", state != "AS", state != "GU",
+         state != "MP", state != "PR", state != "VI")
+
+# Set my theme
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+
+# Set code output width
+options(width = 65)
+
+# Set figure parameters
+knitr::opts_chunk$set(
+  fig.width = 7,
+  fig.asp = 0.68,
+  fig.retina = 3,
+  fig.align = "center",
+  dpi = 300
+)
+
+# Create data frame that only includes the 10 states with the longest ER visit times
+longest_visits <- patients |>
+  slice_max(score, n = 5)
+
+# Create a data frame that only includes the 10 states with the shortest ER visit times
+shortest_visits <- patients |>
+  slice_min(score, n = 5)
+
+# Join the two new data frames together
+n = longest_visits |>
+  full_join(shortest_visits)
+
+
+# Plot my data
+ggplot(n, aes(x = score, y = factor(state, levels = rev(levels(factor(state)))))) + 
+  geom_point(size = 4) + 
+  labs(
+    title = "Highest & Lowest Median ER Visit Times",
+    subtitle = "Psychiatric/mental health patients",
+    x = "Minutes",
+    y = NULL
+  ) + 
+  theme(
+    plot.subtitle = element_text(color = "cornsilk4")
+  )
+
+# Sources
+# https://dplyr.tidyverse.org/reference/filter.html
+# https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States
+# https://dplyr.tidyverse.org/reference/top_n.html
+# https://www.rdocumentation.org/packages/dplyr/versions/0.7.8/topics/filter
+# https://dplyr.tidyverse.org/reference/pull.html#ref-examples
+# https://dplyr.tidyverse.org/reference/slice.html#ref-examples
+# https://ggplot2.tidyverse.org/reference/geom_bar.html
+# https://www.rdocumentation.org/packages/data.table/versions/1.18.4/topics/merge
+# https://d2l.arizona.edu/d2l/le/content/1755726/viewContent/20559504/View
+# https://r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html
+# https://www.statology.org/ggplot-order-y-axis-alphabetically/
+# https://medium.com/@MattOldach_65321/reversing-the-order-of-axis-in-a-ggplot2-scatterplot-b1d729b89118
+# https://ggplot2.tidyverse.org/reference/geom_point.html#ref-examples
+
 
 ```
+
+This visual highlights the 5 states that have the shortest and longest median ER visit times for psychiatric/mental health patients.
