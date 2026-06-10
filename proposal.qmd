@@ -28,6 +28,23 @@ pacman::p_load(tidyverse,
                scales,
                ggthemes
                )
+
+# General settings
+# Theme
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+
+# Code output width
+options(width = 65)
+
+# Figure parameters
+knitr::opts_chunk$set(
+  fig.width = 7,
+  fig.asp = 0.68,
+  fig.retina = 3,
+  fig.align = "center",
+  dpi = 300
+)
+
 ```
 
 ## Data Set
@@ -68,21 +85,6 @@ patients <- er_data |>
          measure_id == "OP_18c", state != "DC", state != "AS", state != "GU",
          state != "MP", state != "PR", state != "VI")
 
-# Set my theme
-ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
-
-# Set code output width
-options(width = 65)
-
-# Set figure parameters
-knitr::opts_chunk$set(
-  fig.width = 7,
-  fig.asp = 0.68,
-  fig.retina = 3,
-  fig.align = "center",
-  dpi = 300
-)
-
 # Create data frame that only includes the 10 states with the longest ER visit times
 longest_visits <- patients |>
   slice_max(score, n = 5)
@@ -106,7 +108,6 @@ p_data =p_data |>
       state %in% c("RI") ~ "Rhode Island", state %in% c("SD") ~ "South Dakota"
     )
   )
-
 
 # Plot my data
 ggplot(p_data, aes(x = score, y = factor(state_full, levels = rev(levels(factor(state_full)))))) + 
@@ -243,15 +244,23 @@ This histogram shows the number of states that have 1%, 2%, 3%. 4%, and 5% media
 #| label: Answer to question 2 (cont.)
 
 # Plot the data
-ggplot(combined_data, aes(x = score, y = population)) + 
-  geom_point() + 
+ggplot(combined_data, aes(x = score, y = population, size = population, color = population)) + 
+  #geom_point() + 
+  geom_jitter() +
   scale_x_continuous(label = label_percent(scale = 1)) + 
-  scale_y_continuous(label = label_number()) + 
+  scale_y_log10(labels = scales::label_number()) +
+  #scale_y_continuous(label = label_number()) + 
   labs(
-    title = "Population and Median % Early ER Departures by State",
+    title = "Median % Early ER Departures by State",
     caption = "Source: Centers for Medicare & Medicaid Services | TidyTuesday",
-    x = NULL
+    x = NULL,
+    y = "State Population"
   ) + 
+  guides(
+    title = "State Population",
+    size = "none",
+    color = "none"
+    ) + 
   theme(
     plot.caption = element_text(color = "cornsilk4")
   )
@@ -266,9 +275,18 @@ https://www.geeksforgeeks.org/r-language/transform-ggplot2-plot-axis-to-log-scal
 https://ggplot2.tidyverse.org/articles/faq-axes.html
 https://r-graph-gallery.com/79-levelplot-with-ggplot2.html
 https://r-graph-gallery.com/320-the-basis-of-bubble-plot.html
-# https://d2l.arizona.edu/d2l/le/content/1755726/viewContent/20559504/View
+https://d2l.arizona.edu/d2l/le/content/1755726/viewContent/20559504/View
+https://ggplot2.tidyverse.org/reference/scale_continuous.html
+https://www.r-bloggers.com/2021/08/beginning-a-ggplot2-series-logarithmize-your-scales/#google_vignette
+https://ggplot2.tidyverse.org/reference/geom_jitter.html
+https://ggplot2.tidyverse.org/reference/scale_size.html
+https://ggplot2.tidyverse.org/reference/guide_legend.html
+https://www.r-bloggers.com/2024/04/guide-to-remove-legends-in-ggplot2-in-r-programming/#google_vignette
+https://www.r-bloggers.com/2024/04/guide-to-remove-legends-in-ggplot2-in-r-programming/
+https://ggplot2.tidyverse.org/reference/geom_abline.html
+https://www.datacamp.com/tutorial/r-median-function
 
 </details>
 ```
 
-Here it is made clear that population does not seem to have an effect overall on the % of patients who leave the ER prematurely per state. There appears to be some high points for each score %, and the majority of points are at that median of 2-3%. There is not any pattern to lead me to believe that population is having an effect on how often patients are leaving prematurely.
+It does not seem that population has an effect on the median percent of early ER departures. The distribution of states with smaller, medium, and larger sized populations are distributed fairly evenly across the median percent rates (1-5%).
