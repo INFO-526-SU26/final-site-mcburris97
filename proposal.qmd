@@ -74,10 +74,10 @@ This data set comes from the Centers for Medicare and Medicaid Services (CMS) we
 - To answer which states/regions are the most and least effective time wise at treating psychiatric/mental health patients admitted to the emergency room, I plan to create two visuals. I will need to use various variables from the care_state.csv file including condition, score, and measure_id. I will also need to utilize some external data that specifies the region for key states, states that have the shortest and longest median ER visit times. I will first visualize an overview of which states have the highest and lowest median visit times, then I will go a step further and visualize this by region as well.
 - In order to address if state population has an effect on the percent of patients who leave the emergency room without being seen, I will need to use the condition, measure_id, and score variables. I will also need to pull in some external data to get population numbers for each state. I found an external source with population data estimates for each state for 2025, which I felt was sufficiently close to the care_state.csv data which was collected in 2023. I plan to answer this question visually by first introducing how many states are in each bucket of median % ER departures, which ranges from 1-5%. I then will go on to compare population by state to this median ER departure % to determine if the state population leads to an effect on this departure % metric.
 
-## Visuals
+## Mental Health Patient Treatment
 
 ```{r}
-#| label: Answer to question 1
+#| label: Mental Health Patient Treatment
 
 # Filter data to only include emergency room observations, patients that are non psyciatric/mental health patients, and only states not federal districts or territories.
 patients <- er_data |>
@@ -85,11 +85,11 @@ patients <- er_data |>
          measure_id == "OP_18c", state != "DC", state != "AS", state != "GU",
          state != "MP", state != "PR", state != "VI")
 
-# Create data frame that only includes the 10 states with the longest ER visit times
+# Create data frame that only includes the 5 states with the longest ER visit times for mental health patients
 longest_visits <- patients |>
   slice_max(score, n = 5)
 
-# Create a data frame that only includes the 10 states with the shortest ER visit times
+# Create a data frame that only includes the 5 states with the shortest ER visit times for mental health patients
 shortest_visits <- patients |>
   slice_min(score, n = 5)
 
@@ -97,12 +97,12 @@ shortest_visits <- patients |>
 p_data = longest_visits |>
   full_join(shortest_visits)
 
-# Create a new column that spells out the state names that meet the above criteria
-p_data =p_data |>
+# Create a new column that spells out the state names for the states with the longest and shortest ER visit times for mental health patients
+p_data = p_data |>
   mutate(
     state_full = case_when(
-      state %in% c("DE") ~ "Deleware", state %in% c("KS") ~ "Kansas",
-      state %in% c("MA") ~ "Massachusets", state %in% c("MD") ~ "Maryland",
+      state %in% c("DE") ~ "Delaware", state %in% c("KS") ~ "Kansas",
+      state %in% c("MA") ~ "Massachusetts", state %in% c("MD") ~ "Maryland",
       state %in% c("MT") ~ "Montana", state %in% c("ND") ~ "North Dakota",
       state %in% c("NE") ~ "Nebraska", state %in% c("NY") ~ "New York",
       state %in% c("RI") ~ "Rhode Island", state %in% c("SD") ~ "South Dakota"
@@ -145,15 +145,15 @@ https://ggplot2.tidyverse.org/reference/geom_point.html#ref-examples
 https://en.wikipedia.org/wiki/List_of_regions_of_the_United_States
 https://kpuka.ca/resources/quarto_intro.html#sec-html_folding
 
-</details>
+</details>C:/Users/mcbur/Downloads/INFO526/final-project-mcburris97/data/state_populations.csv
 ```
 
-This visual highlights the 5 states that have the shortest and longest median ER visit times for psychiatric/mental health patients. For visual 2, take it a step further and visualize region along with it.
+This visual highlights the 5 states that have the shortest and longest median ER visit times for psychiatric/mental health patients.
 
 ```{r}
 #| label: Answer to question 1 (cont.)
 
-# Modify my data to include region for more detailed analysis
+# Modify my data to include region for my 10 previously selected states
 p_data <- p_data |>
   mutate(
     region = case_when(
@@ -165,7 +165,7 @@ p_data <- p_data |>
   )
 
 # Plot my data
-ggplot(p_data, aes(x = score, y = sort(state_full), fill = region)) + 
+ggplot(p_data, aes(x = score, y = reorder(state_full, score), fill = region)) + 
   geom_col() + 
   scale_fill_colorblind() + 
   labs(
@@ -189,14 +189,18 @@ https://ggplot2.tidyverse.org/reference/geom_bar.html#ref-examples
 https://www.datacamp.com/tutorial/sorting-in-r
 https://ggplot2.tidyverse.org/reference/geom_bar.html
 https://forum.posit.co/t/changing-position-of-plot-captions/108973/2
+https://guslipkin.medium.com/reordering-bar-and-column-charts-with-ggplot2-in-r-435fad1c643e
+https://r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html
 
 </details>
 ```
 
-This second visual clearly shows that the Midwest region offers some of the fastest ER visits while states in the South and Northeast offer the highest overall ER visits.
+This plot highlights 10 states - those with the highest and the lowest median ER visit times. It clearly shows that the South and Midwest regions tend to have longer visit times for psychiatric/mental health patients while the West and Midwest have shorter visit times. This leads me to believe that these regions are more effective at handling psychiatric/mental health patients who come to the ER.
+
+## Patients Leaving Early
 
 ```{r}
-#| label: Answer to question 2
+#| label: Early departures
 
 # Filter data to only include % of patients who left the ER without being seen in each state
 p_left <- er_data |>
@@ -238,7 +242,7 @@ https://ggplot2.tidyverse.org/reference/scale_continuous.html
 </details>
 ```
 
-This histogram shows the number of states that have 1%, 2%, 3%. 4%, and 5% median patients who left the ER prematurely.
+This histogram shows the number of states that have 1%, 2%, 3%. 4%, and 5% median patients who left the ER prematurely. It gives a good high-level picture of what scope of this value is (1-5%) as well as how many states fall into each of these groups.
 
 ```{r}
 #| label: Answer to question 2 (cont.)
