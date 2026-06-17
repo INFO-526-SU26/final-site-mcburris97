@@ -145,7 +145,7 @@ https://ggplot2.tidyverse.org/reference/geom_point.html#ref-examples
 https://en.wikipedia.org/wiki/List_of_regions_of_the_United_States
 https://kpuka.ca/resources/quarto_intro.html#sec-html_folding
 
-</details>C:/Users/mcbur/Downloads/INFO526/final-project-mcburris97/data/state_populations.csv
+</details>
 ```
 
 This visual highlights the 5 states that have the shortest and longest median ER visit times for psychiatric/mental health patients.
