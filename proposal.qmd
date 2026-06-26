@@ -18,6 +18,17 @@ execute:
   warning: false
 ---
 
+## Getting Started
+
+The data set used for this project comes from [TidyTuesday 2025 data sets.](https://github.com/rfordatascience/tidytuesday/tree/main/data/2025#readme) Scroll down to Week 14 to view the Data and Source used to complete this project.
+
+```{=html}
+<details>
+<summary>Sources</summary>
+# https://www.markdownguide.org/basic-syntax/
+</details>
+```
+
 ```{r}
 #| label: load-pkgs
 #| message: false
@@ -52,24 +63,34 @@ knitr::opts_chunk$set(
 ```{r}
 #| label: load-dataset
 #| message: false
+
 # Load dataset
+# Data comes from the Centers for Medicare and Medicaid Services (CMS) website
 er_data <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-08/care_state.csv")
+
+# Show an overview of the data set
 glimpse(er_data)
+
+# Print off first 5 rows of data
+head(er_data, n = 5)
 
 ```
 
-This data set comes from the Centers for Medicare and Medicaid Services (CMS) website. There are 1,232 rows and 8 columns of data. I chose this data set because I'm interested in working full-time in a Biotechnology or Healthcare-related industry, and this project presents a perfect opportunity for me to visualize and analyze health data.
+```{=html}
+<details>
+<summary>Sources</summary>
+# https://www.datacamp.com/doc/r/contents
+</details>
+```
+
+I chose this data set because I'm interested in working full-time in a Biotechnology or Healthcare-related industry, and this project presents a perfect opportunity for me to visualize and analyze health data.
 
 ## Questions
-
-*The two questions you want to answer.*
 
 1.  Which states/regions are the most and least effective time wise at treating psychiatric/mental health patients that are admitted to the emergency room?
 2.  Does state population have an effect on what percent of patients leave the emergency room without being seen?
 
 ## Analysis plan
-
-*A plan for answering each of the questions including the variables involved, variables to be created (if any), external data to be merged in (if any).*
 
 - To answer which states/regions are the most and least effective time wise at treating psychiatric/mental health patients admitted to the emergency room, I plan to create two visuals. I will need to use various variables from the care_state.csv file including condition, score, and measure_id. I will also need to utilize some external data that specifies the region for key states, states that have the shortest and longest median ER visit times. I will first visualize an overview of which states have the highest and lowest median visit times, then I will go a step further and visualize this by region as well.
 - In order to address if state population has an effect on the percent of patients who leave the emergency room without being seen, I will need to use the condition, measure_id, and score variables. I will also need to pull in some external data to get population numbers for each state. I found an external source with population data estimates for each state for 2025, which I felt was sufficiently close to the care_state.csv data which was collected in 2023. I plan to answer this question visually by first introducing how many states are in each bucket of median % ER departures, which ranges from 1-5%. I then will go on to compare population by state to this median ER departure % to determine if the state population leads to an effect on this departure % metric.
@@ -197,7 +218,7 @@ https://r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html
 
 This plot highlights 10 states - those with the highest and the lowest median ER visit times. It clearly shows that the South and Midwest regions tend to have longer visit times for psychiatric/mental health patients while the West and Midwest have shorter visit times. This leads me to believe that these regions are more effective at handling psychiatric/mental health patients who come to the ER.
 
-## Patients Leaving Early
+## Patients Leaving Early - Does Population Matter?
 
 ```{r}
 #| label: Early departures
