@@ -1,7 +1,7 @@
 ---
-title: "Project title"
-subtitle: "INFO 526 - Summer 2024 - Final Project"
-author: "Author names"
+title: "Emergency Room Care Across the United States"
+subtitle: "INFO 526 Data Analysis and Visualization"
+author: "Michael Burris"
 title-slide-attributes:
   data-background-image: images/watercolour_sys02_img34_teacup-ocean.jpg
   data-background-size: stretch
@@ -17,12 +17,18 @@ execute:
 ---
 
 ```{r}
-#| label: load-packages
+#| label: load packages and data
 #| include: false
 
-# Load packages here
-pacman::p_load(tidymodels,
-               tidyverse)
+# Load packages
+#install.packages("pacman")
+pacman::p_load(tidyverse,
+               scales,
+               ggthemes
+               )
+
+# Load dataset
+er_data <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-08/care_state.csv")
 
 ```
 
@@ -42,124 +48,109 @@ knitr::opts_chunk$set(
   )
 ```
 
-```{r}
-#| label: load-data
-#| include: false
-# Load data here
-data(mtcars)
-mtcars$speed <- mtcars$hp / mtcars$wt
-
-data("penguins")
-```
-
 # Using Quarto for presentations
 
 ## Quarto
 
--   The presentation is created using the Quarto CLI
+- The presentation is created using the Quarto CLI
 
--   `##` sets the start of a new slide
+- `##` sets the start of a new slide
 
 ## Layouts
 
 You can use plain text
 
-::: columns
+::::: columns
 ::: {.column width="40%"}
--   or bullet points[^1]
+- or bullet points[^1]
 :::
 
 ::: {.column width="60%"}
 or in two columns
 :::
-:::
+:::::
 
 [^1]: And add footnotes
 
--   like
+- like
 
--   this
+- this
 
 ## Code
 
-```{r, echo=FALSE}
-model <- lm(mpg ~ speed, data = mtcars) 
-
-model |> tidy()
-
-model |> glance()
+```{r, echo=FALSE, .col}
+#| label: code
 
 ```
 
 ## Plots
 
 ```{r}
-penguins |>
-  mutate(species = ifelse(species == "Adelie", "Adelie", "Other")) |>
-  ggplot(aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
-  geom_point()
+#| label: Mental Health Patient Treatment
+
 ```
 
-## Plot and text
+## Mental Health Patient Treatment
 
-::: columns
+::::: columns
 ::: {.column width="50%"}
--   Some text
-
--   goes here
+- The lowest and highest median ER visit times in the United States
 :::
 
 ::: {.column width="50%"}
-```{r, warning=FALSE, fig.width=5.5}
-penguins |>
-  ggplot(aes(x = bill_length_mm, y = species, color = species)) +
-  geom_boxplot(linewidth = 0.75,
-               outlier.size = 2.5) +
-  theme_minimal(base_size = 15) +
-  theme(legend.key.size = unit(0.8, "cm"))
+```{r, warning=FALSE, fig.width = 7}
+# Filter data to only include emergency room observations, patients that are non psyciatric/mental health patients, and only states not federal districts or territories.
+patients <- er_data |>
+  filter(condition == "Emergency Department", 
+         measure_id == "OP_18c", state != "DC", state != "AS", state != "GU",
+         state != "MP", state != "PR", state != "VI")
+
+# Create data frame that only includes the 5 states with the longest ER visit times for mental health patients
+longest_visits <- patients |>
+  slice_max(score, n = 5)
+
+# Create a data frame that only includes the 5 states with the shortest ER visit times for mental health patients
+shortest_visits <- patients |>
+  slice_min(score, n = 5)
+
+# Join the two new data frames together
+p_data = longest_visits |>
+  full_join(shortest_visits)
+
+# Create a new column that spells out the state names for the states with the longest and shortest ER visit times for mental health patients
+p_data = p_data |>
+  mutate(
+    state_full = case_when(
+      state %in% c("DE") ~ "Delaware", state %in% c("KS") ~ "Kansas",
+      state %in% c("MA") ~ "Massachusetts", state %in% c("MD") ~ "Maryland",
+      state %in% c("MT") ~ "Montana", state %in% c("ND") ~ "North Dakota",
+      state %in% c("NE") ~ "Nebraska", state %in% c("NY") ~ "New York",
+      state %in% c("RI") ~ "Rhode Island", state %in% c("SD") ~ "South Dakota"
+    )
+  )
+
+# Plot my data
+ggplot(p_data, aes(x = score, y = factor(state_full, levels = rev(levels(factor(state_full)))))) + 
+  geom_point(size = 4) + 
+  labs(
+    title = "Highest & Lowest Median ER Visit Times",
+    subtitle = "Psychiatric/mental health patients",
+    x = "Minutes",
+    y = NULL,
+    caption = "Source: Centers for Medicare & Medicaid Services | TidyTuesday"
+  ) + 
+  theme(
+    plot.subtitle = element_text(color = "cornsilk4"),
+    plot.caption = element_text(color = "cornsilk4")
+  )
 ```
 :::
-:::
-
-# A new section...
-
-## Tables
-
-If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
-
-```{r}
-penguins |> 
-  head() |>
-  kableExtra::kable() |>
-  kableExtra::kable_styling()
-```
-
-## Images
-
-![Image credit: Danielle Navarro, Percolate.](images/watercolour_sys02_img34_teacup-ocean.png){fig-align="center" width="500"}
-
-## Math Expressions {.smaller}
-
-You can write LaTeX math expressions inside a pair of dollar signs, e.g. \$\\alpha+\\beta\$ renders $\alpha + \beta$. You can use the display style with double dollar signs:
-
-```         
-$$\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i$$
-```
-
-$$
-\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i
-$$
-
-Limitations:
-
-1.  The source code of a LaTeX math expression must be in one line, unless it is inside a pair of double dollar signs, in which case the starting `$$` must appear in the very beginning of a line, followed immediately by a non-space character, and the ending `$$` must be at the end of a line, led by a non-space character;
-
-2.  There should not be spaces after the opening `$` or before the closing `$`.
+:::::
 
 # Wrap up
 
 ## Feeling adventurous?
 
--   You are welcomed to use the default styling of the slides. In fact, that's what I expect majority of you will do. You will differentiate yourself with the content of your presentation.
+- You are welcomed to use the default styling of the slides. In fact, that's what I expect majority of you will do. You will differentiate yourself with the content of your presentation.
 
--   But some of you might want to play around with slide styling. Some solutions for this can be found at https://quarto.org/docs/presentations/revealjs.
+- But some of you might want to play around with slide styling. Some solutions for this can be found at https://quarto.org/docs/presentations/revealjs.

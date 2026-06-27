@@ -1,11 +1,11 @@
 ---
-title: "Project Title"
-subtitle: "INFO 526 - Summer 2024 - Final Project"
+title: "Emergency Room Care Across the United States"
+subtitle: "INFO 526 Data Analysis and Visualization"
 author: 
-  - name: "Team name"
+  - name: "Michael Burris"
     affiliations:
-      - name: "School of Information, University of Arizona"
-description: "Project description"
+      - name: "College of Information Science, University of Arizona"
+description: "Final project for INFO 526 Data Analysis and Visualization"
 format:
    html:
     code-tools: true
@@ -17,6 +17,113 @@ execute:
   echo: false
 ---
 
-## Abstract
+# Write-Up
 
-Add project abstract here.
+## Introduction
+
+My project answers two questions. The first is in regards to median ER visit times for psychiatric/mental health patients across states and regions. The second focuses on median percent of patients who leave the ER without being seen by state, and whether state population has an influence. The variables I used include state which gives the state abbreviation, condition which I filtered to only include Emergency Department, measure_name which includes information such as the median ER visit time and the percent of early ER departures, measure_id which is the abbreviation for each measure_name, and score which is the total minutes value of the visit or the percent value. I also included some external data in my project to bring in state full names, regions, and population for certain states.
+
+### Question 1 - Time efficiency in treating mental health patients
+
+#### Justification of approach
+
+I chose to answer this question by first using geom_point to show the 5 states with the lowest and the 5 states with the highest median ER visit times for mental health patients. This gives a good general understanding to the viewer of the overall scope of how short or long these visits are across the United States. I then went on to use geom_col() to show this same information, the 5 states with the lowest and the 5 states with the highest median ER visit times, but made some additions. The visual is sorted from highest to lowest median ER visit times, and the columns are filled by region, which clearly shows the viewer which states as well as regions are the most and least effective time-wise at treating mental health patients.
+
+#### Code/Visualization
+
+```{r}
+#| label: Load packages and data
+
+# Load packages
+#install.packages("pacman")
+pacman::p_load(tidyverse,
+               scales,
+               ggthemes
+               )
+# Load dataset
+er_data <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-08/care_state.csv")
+```
+
+```{r}
+#| label: Mental Health Patient Treatment
+
+# Filter data to only include emergency room observations, patients that are non psyciatric/mental health patients, and only states not federal districts or territories.
+patients <- er_data |>
+  filter(condition == "Emergency Department", 
+         measure_id == "OP_18c", state != "DC", state != "AS", state != "GU",
+         state != "MP", state != "PR", state != "VI")
+
+# Create data frame that only includes the 5 states with the longest ER visit times for mental health patients
+longest_visits <- patients |>
+  slice_max(score, n = 5)
+
+# Create a data frame that only includes the 5 states with the shortest ER visit times for mental health patients
+shortest_visits <- patients |>
+  slice_min(score, n = 5)
+
+# Join the two new data frames together
+p_data = longest_visits |>
+  full_join(shortest_visits)
+
+# Create a new column that spells out the state names for the states with the longest and shortest ER visit times for mental health patients
+p_data = p_data |>
+  mutate(
+    state_full = case_when(
+      state %in% c("DE") ~ "Delaware", state %in% c("KS") ~ "Kansas",
+      state %in% c("MA") ~ "Massachusetts", state %in% c("MD") ~ "Maryland",
+      state %in% c("MT") ~ "Montana", state %in% c("ND") ~ "North Dakota",
+      state %in% c("NE") ~ "Nebraska", state %in% c("NY") ~ "New York",
+      state %in% c("RI") ~ "Rhode Island", state %in% c("SD") ~ "South Dakota"
+    )
+  )
+
+# Plot my data
+ggplot(p_data, aes(x = score, y = factor(state_full, levels = rev(levels(factor(state_full)))))) + 
+  geom_point(size = 4) + 
+  labs(
+    title = "Highest & Lowest Median ER Visit Times",
+    subtitle = "Psychiatric/mental health patients",
+    x = "Minutes",
+    y = NULL,
+    caption = "Source: Centers for Medicare & Medicaid Services | TidyTuesday"
+  ) + 
+  theme(
+    plot.subtitle = element_text(color = "cornsilk4"),
+    plot.caption = element_text(color = "cornsilk4")
+  )
+```
+
+```{r}
+#| label: Mental health patient treatment (cont.)
+
+# Modify my data to include region for my 10 previously selected states
+p_data <- p_data |>
+  mutate(
+    region = case_when(
+      state %in% c("DE", "MD") ~ "South",
+      state %in% c("KS", "ND", "NE", "SD") ~ "Midwest",
+      state %in% c("MT") ~ "West",
+      TRUE ~ "Northeast"
+    )
+  )
+
+# Plot my data
+ggplot(p_data, aes(x = score, y = reorder(state_full, score), fill = region)) + 
+  geom_col() + 
+  scale_fill_colorblind() + 
+  labs(
+    title = "Median ER Visit Times by State & Region",
+    subtitle = "Psychiatric/mental health patients",
+    x = "Minutes",
+    y = NULL,
+    caption = "Source: Centers for Medicare & Medicaid Services | TidyTuesday"
+  ) + 
+  theme(
+    plot.subtitle = element_text(color = "cornsilk4"),
+    plot.caption = element_text(color = "cornsilk4")
+  )
+```
+
+#### Discussion
+
+The first visual clearly shows the scope of the lowest and highest ER visit times, which empowers viewers with an initial understanding of how long these visits are and where they take the shortest and longest amount of time. At a glance, it is easy to tell that visits on the short end take \~150 minutes while visits on the long end take \~350 minutes. The second visual helps to solidify this understanding by ordering these median visit times from longest to shortest, and makes it crystal clear that the Midwest and West regions have the shortest ER visit times for mental health patients while the South and Northeast hold the highest median ER visit times for these patients.
