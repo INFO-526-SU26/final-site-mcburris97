@@ -23,7 +23,7 @@ execute:
 
 My project answers two questions. The first is in regards to median ER visit times for psychiatric/mental health patients across states and regions. The second focuses on median percent of patients who leave the ER without being seen by state, and whether state population has an influence. The variables I used include state which gives the state abbreviation, condition which I filtered to only include Emergency Department, measure_name which includes information such as the median ER visit time and the percent of early ER departures, measure_id which is the abbreviation for each measure_name, and score which is the total minutes value of the visit or the percent value. I also included some external data in my project to bring in state full names, regions, and population for certain states.
 
-### Question 1 - Time efficiency in treating mental health patients
+## Question 1 - Time efficiency in treating mental health patients
 
 #### Justification of approach
 
@@ -127,3 +127,74 @@ ggplot(p_data, aes(x = score, y = reorder(state_full, score), fill = region)) +
 #### Discussion
 
 The first visual clearly shows the scope of the lowest and highest ER visit times, which empowers viewers with an initial understanding of how long these visits are and where they take the shortest and longest amount of time. At a glance, it is easy to tell that visits on the short end take \~150 minutes while visits on the long end take \~350 minutes. The second visual helps to solidify this understanding by ordering these median visit times from longest to shortest, and makes it crystal clear that the Midwest and West regions have the shortest ER visit times for mental health patients while the South and Northeast hold the highest median ER visit times for these patients.
+
+## Question 2 - State Population and early ER departures
+
+#### Justification of approach
+
+To begin to answer this question, I utilized geom_histogram() to show the number of states with 1%, 2%, 3%, 4%, and 5% median early ER departure rates, meaning they left before being seen. I started off answering this question this way because it showed the general spread of how many states fell into each median percent, and it demonstrated to viewers that 1% was the lowest and 5% was the highest median early ER departure rate. I went on to use geom_jitter(), with my plot having the 1-5% median early ER departure rates on the x axis and state population on the y axis. The points were sized and colored by population, with bigger population states having a bigger point and a lighter shade of blue. This second plot reveals that there is not a clear trend between low, medium, and high population states and median early ER departure rates.
+
+#### Code/Visualization
+
+```{r}
+#| label: Early departures
+
+# Filter data to only include % of patients who left the ER without being seen in each state
+p_left <- er_data |>
+  filter(condition == "Emergency Department",
+         measure_id == "OP_22", state != "DC", state != "AS", state != "GU", 
+         state != "MP", state != "PR", state != "VI")
+
+# Load in new state population data
+state_populations <- read_csv("data/state_populations.csv")
+
+# Left join
+combined_data <- left_join(p_left, state_populations)
+
+# Set my theme
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+
+# Plot the data
+ggplot(combined_data, aes(x = score)) + 
+         geom_histogram(bins = 5) + 
+  scale_x_continuous(labels = label_percent(scale = 1)) + 
+  labs(
+    title = "Count of States and their Early ER Departures",
+    x = NULL,
+    y = "# of states",
+    caption = "Source: Centers for Medicare & Medicaid Services | TidyTuesday"
+  ) + 
+  theme(
+    plot.caption = element_text(color = "cornsilk4")
+  )
+```
+
+```{r}
+#| label: Early departures (cont.)
+
+# Plot the data
+ggplot(combined_data, aes(x = score, y = population, size = population, color = population)) + 
+  #geom_point() + 
+  geom_jitter() +
+  scale_x_continuous(label = label_percent(scale = 1)) + 
+  scale_y_log10(labels = scales::label_number()) +
+  #scale_y_continuous(label = label_number()) + 
+  labs(
+    title = "Median % Early ER Departures by State",
+    caption = "Source: Centers for Medicare & Medicaid Services | TidyTuesday",
+    x = NULL,
+    y = "State Population"
+  ) + 
+  guides(
+    title = "State Population",
+    size = "none",
+    color = "none"
+    ) + 
+  theme(
+    plot.caption = element_text(color = "cornsilk4")
+  )
+```
+
+#### Discussion
+
+The results show that there is a relatively normal, bell-curve shaped distribution of number of states in each median percent of early departures with the majority of states having a 2% or 3% early departure rate. The second visual shows that state population does not have an impact on early departure rate, because there is an even spread of states and state populations across each median percent of early ER departure rates.

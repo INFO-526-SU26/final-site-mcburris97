@@ -17,23 +17,7 @@ execute:
 ---
 
 ```{r}
-#| label: load packages and data
-#| include: false
-
-# Load packages
-#install.packages("pacman")
-pacman::p_load(tidyverse,
-               scales,
-               ggthemes
-               )
-
-# Load dataset
-er_data <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-08/care_state.csv")
-
-```
-
-```{r}
-#| label: setup
+#| label: setup, load packages, and load data
 #| include: false
 
 # Plot theme
@@ -46,59 +30,29 @@ knitr::opts_chunk$set(
   fig.width = 6, 
   fig.asp = 0.618 
   )
-```
 
-# Using Quarto for presentations
+# Load packages
+#install.packages("pacman")
+pacman::p_load(tidyverse,
+               scales,
+               ggthemes
+               )
 
-## Quarto
-
-- The presentation is created using the Quarto CLI
-
-- `##` sets the start of a new slide
-
-## Layouts
-
-You can use plain text
-
-::::: columns
-::: {.column width="40%"}
-- or bullet points[^1]
-:::
-
-::: {.column width="60%"}
-or in two columns
-:::
-:::::
-
-[^1]: And add footnotes
-
-- like
-
-- this
-
-## Code
-
-```{r, echo=FALSE, .col}
-#| label: code
-
-```
-
-## Plots
-
-```{r}
-#| label: Mental Health Patient Treatment
-
+# Load dataset
+er_data <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-08/care_state.csv")
 ```
 
 ## Mental Health Patient Treatment
 
 ::::: columns
-::: {.column width="50%"}
+::: {.column width="30%"}
 - The lowest and highest median ER visit times in the United States
 :::
 
-::: {.column width="50%"}
+::: {.column width="70%"}
 ```{r, warning=FALSE, fig.width = 7}
+#| label: Mental health patient treatment
+
 # Filter data to only include emergency room observations, patients that are non psyciatric/mental health patients, and only states not federal districts or territories.
 patients <- er_data |>
   filter(condition == "Emergency Department", 
@@ -147,10 +101,127 @@ ggplot(p_data, aes(x = score, y = factor(state_full, levels = rev(levels(factor(
 :::
 :::::
 
-# Wrap up
+## Mental Health Patient Treatment (cont.)
 
-## Feeling adventurous?
+::::: columns
+::: {.column width="30%"}
+- Visit times organized by state and region
+:::
 
-- You are welcomed to use the default styling of the slides. In fact, that's what I expect majority of you will do. You will differentiate yourself with the content of your presentation.
+::: {.column width="70%"}
+```{r, warning=FALSE, fig.width = 7}
+#| label: Mental Health Patient Treatment (cont.)
 
-- But some of you might want to play around with slide styling. Some solutions for this can be found at https://quarto.org/docs/presentations/revealjs.
+# Modify my data to include region for my 10 previously selected states
+p_data <- p_data |>
+  mutate(
+    region = case_when(
+      state %in% c("DE", "MD") ~ "South",
+      state %in% c("KS", "ND", "NE", "SD") ~ "Midwest",
+      state %in% c("MT") ~ "West",
+      TRUE ~ "Northeast"
+    )
+  )
+
+# Plot my data
+ggplot(p_data, aes(x = score, y = reorder(state_full, score), fill = region)) + 
+  geom_col() + 
+  scale_fill_colorblind() + 
+  labs(
+    title = "Median ER Visit Times by State & Region",
+    subtitle = "Psychiatric/mental health patients",
+    x = "Minutes",
+    y = NULL,
+    caption = "Source: Centers for Medicare & Medicaid Services | TidyTuesday"
+  ) + 
+  theme(
+    plot.subtitle = element_text(color = "cornsilk4"),
+    plot.caption = element_text(color = "cornsilk4")
+  )
+```
+:::
+:::::
+
+## Early Departures
+
+::::: columns
+::: {.column width="30%"}
+- Distribution of median % Early ER Departures
+:::
+
+::: {.column width="70%"}
+```{r, warning=FALSE, fig.width = 7}
+#| label: Early ER Departures
+
+#| label: Early departures
+
+# Filter data to only include % of patients who left the ER without being seen in each state
+p_left <- er_data |>
+  filter(condition == "Emergency Department",
+         measure_id == "OP_22", state != "DC", state != "AS", state != "GU", 
+         state != "MP", state != "PR", state != "VI")
+
+# Load in new state population data
+state_populations <- read_csv("data/state_populations.csv")
+
+# Left join
+combined_data <- left_join(p_left, state_populations)
+
+# Set my theme
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+
+# Plot the data
+ggplot(combined_data, aes(x = score)) + 
+         geom_histogram(bins = 5) + 
+  scale_x_continuous(labels = label_percent(scale = 1)) + 
+  labs(
+    title = "Count of States and their Early ER Departures",
+    subtitle = "% left before being seen",
+    x = NULL,
+    y = "# of states",
+    caption = "Source: Centers for Medicare & Medicaid Services | TidyTuesday"
+  ) + 
+  theme(
+    plot.caption = element_text(color = "cornsilk4"),
+    plot.subtitle = element_text(color = "cornsilk4")
+  )
+
+```
+:::
+:::::
+
+## Early Departures (cont.)
+
+::::: columns
+::: {.column width="30%"}
+- Visit times organized by state and region
+:::
+
+::: {.column width="70%"}
+```{r, warning=FALSE, fig.width = 7}
+#| label: Answer to question 2 (cont.)
+
+# Plot the data
+ggplot(combined_data, aes(x = score, y = population, size = population, color = population)) + 
+  #geom_point() + 
+  geom_jitter() +
+  scale_x_continuous(label = label_percent(scale = 1)) + 
+  scale_y_log10(labels = scales::label_number()) +
+  #scale_y_continuous(label = label_number()) + 
+  labs(
+    title = "Median % Early ER Departures by State",
+    caption = "Source: Centers for Medicare & Medicaid Services | TidyTuesday",
+    x = NULL,
+    y = "State Population"
+  ) + 
+  guides(
+    title = "State Population",
+    size = "none",
+    color = "none"
+    ) + 
+  theme(
+    plot.caption = element_text(color = "cornsilk4")
+  )
+```
+:::
+:::::
