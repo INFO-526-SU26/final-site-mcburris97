@@ -42,6 +42,8 @@ pacman::p_load(tidyverse,
                )
 # Load dataset
 er_data <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-08/care_state.csv")
+
+# All references can be found in project proposal
 ```
 
 ```{r}

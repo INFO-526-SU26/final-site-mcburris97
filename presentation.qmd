@@ -3,7 +3,7 @@ title: "Emergency Room Care Across the United States"
 subtitle: "INFO 526 Data Analysis and Visualization"
 author: "Michael Burris"
 title-slide-attributes:
-  data-background-image: images/watercolour_sys02_img34_teacup-ocean.jpg
+  data-background-image: images/hospital_background.jpg
   data-background-size: stretch
   data-background-opacity: "0.7"
   data-slide-number: none
@@ -40,16 +40,31 @@ pacman::p_load(tidyverse,
 
 # Load dataset
 er_data <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-08/care_state.csv")
+
+# All references can be found in project proposal
 ```
+
+## Focus Areas
+
+- Mental Health Patient Treatment
+
+  - Visit duration
+
+  - Differences between states/regions
+
+- Early Departures
+
+  - Percentage of patients by state who left early
+
+  - If population has an influence
+
+## Overarching Questions
+
+1.  Which states/regions are the most and least effective time wise at treating psychiatric/mental health patients that are admitted to the emergency room?
+2.  Does state population have an effect on what percent of patients leave the emergency room without being seen?
 
 ## Mental Health Patient Treatment
 
-::::: columns
-::: {.column width="30%"}
-- The lowest and highest median ER visit times in the United States
-:::
-
-::: {.column width="70%"}
 ```{r, warning=FALSE, fig.width = 7}
 #| label: Mental health patient treatment
 
@@ -98,17 +113,9 @@ ggplot(p_data, aes(x = score, y = factor(state_full, levels = rev(levels(factor(
     plot.caption = element_text(color = "cornsilk4")
   )
 ```
-:::
-:::::
 
 ## Mental Health Patient Treatment (cont.)
 
-::::: columns
-::: {.column width="30%"}
-- Visit times organized by state and region
-:::
-
-::: {.column width="70%"}
 ```{r, warning=FALSE, fig.width = 7}
 #| label: Mental Health Patient Treatment (cont.)
 
@@ -139,17 +146,9 @@ ggplot(p_data, aes(x = score, y = reorder(state_full, score), fill = region)) +
     plot.caption = element_text(color = "cornsilk4")
   )
 ```
-:::
-:::::
 
 ## Early Departures
 
-::::: columns
-::: {.column width="30%"}
-- Distribution of median % Early ER Departures
-:::
-
-::: {.column width="70%"}
 ```{r, warning=FALSE, fig.width = 7}
 #| label: Early ER Departures
 
@@ -187,17 +186,9 @@ ggplot(combined_data, aes(x = score)) +
   )
 
 ```
-:::
-:::::
 
 ## Early Departures (cont.)
 
-::::: columns
-::: {.column width="30%"}
-- Visit times organized by state and region
-:::
-
-::: {.column width="70%"}
 ```{r, warning=FALSE, fig.width = 7}
 #| label: Answer to question 2 (cont.)
 
@@ -223,5 +214,9 @@ ggplot(combined_data, aes(x = score, y = population, size = population, color = 
     plot.caption = element_text(color = "cornsilk4")
   )
 ```
-:::
-:::::
+
+## Conclusions
+
+- Mental health patients experience shorter visit times in the Midwest/West regions than they do in the South/Northeast regions
+
+- State population does not have an impact on what percent of patients leave the emergency room before being seen
