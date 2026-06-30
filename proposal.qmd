@@ -1,6 +1,6 @@
 ---
 title: "Emergency Room Care Across the United States"
-subtitle: "INFO 526 Data Analysis and Visualization"
+subtitle: "INFO 526 Data Analysis and Visualizationn"
 author: 
   - name: "Michael Burris"
     affiliations:
