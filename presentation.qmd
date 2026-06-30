@@ -152,8 +152,6 @@ ggplot(p_data, aes(x = score, y = reorder(state_full, score), fill = region)) +
 ```{r, warning=FALSE, fig.width = 7}
 #| label: Early ER Departures
 
-#| label: Early departures
-
 # Filter data to only include % of patients who left the ER without being seen in each state
 p_left <- er_data |>
   filter(condition == "Emergency Department",
@@ -190,7 +188,7 @@ ggplot(combined_data, aes(x = score)) +
 ## Early Departures (cont.)
 
 ```{r, warning=FALSE, fig.width = 7}
-#| label: Answer to question 2 (cont.)
+#| label: Early ER Departures (cont.)
 
 # Plot the data
 ggplot(combined_data, aes(x = score, y = population, size = population, color = population)) + 
