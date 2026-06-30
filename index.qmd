@@ -14,20 +14,20 @@ format:
 editor: visual
 execute:
   warning: false
-  echo: false
+  code-fold: true
 ---
 
 # Write-Up
 
 ## Introduction
 
-My project answers two questions. The first is in regards to median ER visit times for psychiatric/mental health patients across states and regions. The second focuses on median percent of patients who leave the ER without being seen by state, and whether state population has an influence. The variables I used include state which gives the state abbreviation, condition which I filtered to only include Emergency Department, measure_name which includes information such as the median ER visit time and the percent of early ER departures, measure_id which is the abbreviation for each measure_name, and score which is the total minutes value of the visit or the percent value. I also included some external data in my project to bring in state full names, regions, and population for certain states.
+My project answers two questions. The first is in regards to median ER visit times for psychiatric/mental health patients across states and regions. The second focuses on median percent of patients who leave the ER without being seen by state, and whether state population has an influence. The variables I used include state which gives the state abbreviation, condition which I filtered to only include Emergency Department, measure_name which includes information such as the median ER visit time and the percent of early ER departures, `measure_id` which is the abbreviation for each measure_name, and score which is the total minutes value of the visit or the percent value. I also included some external data in my project to bring in state full names, regions, and population for certain states.
 
 ## Question 1 - Time efficiency in treating mental health patients
 
 #### Justification of approach
 
-I chose to answer this question by first using geom_point to show the 5 states with the lowest and the 5 states with the highest median ER visit times for mental health patients. This gives a good general understanding to the viewer of the overall scope of how short or long these visits are across the United States. I then went on to use geom_col() to show this same information, the 5 states with the lowest and the 5 states with the highest median ER visit times, but made some additions. The visual is sorted from highest to lowest median ER visit times, and the columns are filled by region, which clearly shows the viewer which states as well as regions are the most and least effective time-wise at treating mental health patients.
+I chose to answer this question by first using geom_point to show the 5 states with the lowest and the 5 states with the highest median ER visit times for mental health patients. This gives a good general understanding to the viewer of the overall scope of how short or long these visits are across the United States. I then went on to use `geom_col()` to show this same information, the 5 states with the lowest and the 5 states with the highest median ER visit times, but made some additions. The visual is sorted from highest to lowest median ER visit times, and the columns are filled by region, which clearly shows the viewer which states as well as regions are the most and least effective time-wise at treating mental health patients.
 
 #### Code/Visualization
 
