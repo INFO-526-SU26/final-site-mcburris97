@@ -198,7 +198,7 @@ ggplot(combined_data, aes(x = score, y = population, size = population, color = 
   scale_y_log10(labels = scales::label_number()) +
   #scale_y_continuous(label = label_number()) + 
   labs(
-    title = "Median % Early ER Departures by State",
+    title = "% Early ER Departures by State",
     caption = "Source: Centers for Medicare & Medicaid Services | TidyTuesday",
     x = NULL,
     y = "State Population"
